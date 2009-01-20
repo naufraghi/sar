@@ -38,27 +38,24 @@ def main(args):
     if len(args) < 3:
         args.append("*")
 
-    if len(args) != 3:
-        print "Invalig args!", args
-        sys.exit(0)
-
-    searchre, replacere, glob_filter = args
+    (searchre, replacere), glob_filters = args[:2], args[2:]
     searchre = re.compile(searchre, re.DOTALL)
 
-    for filename in list_recursive_files(os.getcwd(), glob_filter):
-        sys.stderr.write("Processing file %s... " % filename)
-        res = orig = open(filename).read()
-        res = searchre.sub(replacere, res)
+    for glob_filter in glob_filters:
+        for filename in list_recursive_files(os.getcwd(), glob_filter):
+            sys.stderr.write("Processing file %s... " % filename)
+            res = orig = open(filename).read()
+            res = searchre.sub(replacere, res)
 
-        if orig != res:
-            sys.stderr.write("MATCH FOUND")
-            print "Index:", filename
-            print "=" * 80
-            print ''.join(list(difflib.unified_diff(orig.splitlines(1),
-                                                    res.splitlines(1),
-                                                    filename + " (original)",
-                                                    filename + " (modified)"))),
-        sys.stderr.write("\n")
+            if orig != res:
+                sys.stderr.write("MATCH FOUND")
+                print "Index:", filename
+                print "=" * 80
+                print ''.join(list(difflib.unified_diff(orig.splitlines(1),
+                                                        res.splitlines(1),
+                                                        filename + " (original)",
+                                                        filename + " (modified)"))),
+            sys.stderr.write("\n")
 
 
 if __name__ == "__main__":
