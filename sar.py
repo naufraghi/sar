@@ -44,7 +44,11 @@ def main(args):
     for glob_filter in glob_filters:
         for filename in list_recursive_files(os.getcwd(), glob_filter):
             sys.stderr.write("Processing file %s... " % filename)
-            res = orig = open(filename).read()
+            try:
+                res = orig = open(filename).read()
+            except IOError:
+                print "ERROR reading!"
+                continue
             res = searchre.sub(replacere, res)
 
             if orig != res:
