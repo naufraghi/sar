@@ -47,7 +47,7 @@ def main(args):
             try:
                 res = orig = open(filename).read()
             except IOError:
-                print "ERROR reading!"
+                sys.stderr.write("ERROR reading file %s!" % filename)
                 continue
             res = searchre.sub(replacere, res)
 
