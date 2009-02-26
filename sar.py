@@ -55,10 +55,13 @@ def main(args):
                 sys.stderr.write("MATCH FOUND")
                 print "Index:", filename
                 print "=" * 80
-                print ''.join(list(difflib.unified_diff(orig.splitlines(1),
-                                                        res.splitlines(1),
-                                                        filename + " (original)",
-                                                        filename + " (modified)"))),
+                diff = ''.join(list(difflib.unified_diff(orig.splitlines(1),
+                                                         res.splitlines(1),
+                                                         filename + " (original)",
+                                                         filename + " (modified)")))
+                print diff
+                if diff[-1] != "\n":
+                    print "\\ No newline at end of file"
             sys.stderr.write("\n")
 
 
