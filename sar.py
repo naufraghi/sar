@@ -5,64 +5,83 @@
 Search and replace utility
 ------------------------------------------
 Usage:
-    sar.py searchre replacere [globfilter]
+    sar.py ... > patch.diff
 Output:
-    a patch -p0 < patch.diff
+    patch -p0 < patch.diff
 """
 
 import sys
 import os
-import os.path
 import glob
 import re
 import difflib
 
-pjoin = os.path.join
+import argparse
 
-def list_recursive_files(basepath, glob_filter):
-    for filename in glob.glob(pjoin(basepath, glob_filter)):
+def glob_files(basepath, glob_filter):
+    for filename in glob.glob(basepath + '/' + glob_filter):
         if os.path.isfile(filename):
             yield filename
+
+def recursive_dirs(basepath):
     for root, dirs, files in os.walk(basepath):
         for dir in dirs:
-            for filename in glob.glob(pjoin(pjoin(root, dir), glob_filter)):
-                if os.path.isfile(filename):
-                    yield filename
+            yield dir
 
+def re_compile(regex):
+    return re.compile(regex, re.DOTALL)
+
+def iter_files(args, basepath=os.getcwd()):
+    for afile in args.files:
+        yield afile
+    for aglob in args.globs:
+        for afile in glob_files(basepath, aglob):
+            yield afile
+        if args.recursive:
+            for adir in recursive_dirs(basepath):
+                for afile in glob_files(adir, aglob):
+                    yield afile
 
 def main(args):
-    if len(args) < 2:
-        print "Provide: searchre replacere [globfilter]"
-        sys.exit(0)
+    parser = argparse.ArgumentParser(description="Search and replace utility")
+    parser.add_argument("searchre", type=re_compile)
+    parser.add_argument("replacere")
+    parser.add_argument("files", nargs="*", default=[])
+    parser.add_argument("-v", "--verbose", action="store_false", default=True)
+    parser.add_argument("-r", "--recursive", action="store_true", default=False) 
+    parser.add_argument("-g", "--globs", nargs="+", default=[])
 
-    if len(args) < 3:
-        args.append("*")
+    args = parser.parse_args()
 
-    (searchre, replacere), glob_filters = args[:2], args[2:]
-    searchre = re.compile(searchre, re.DOTALL)
+    if args.verbose:
+        debug = sys.stderr.write
+    else:
+        debug = lambda x: None
 
-    for glob_filter in glob_filters:
-        for filename in list_recursive_files(os.getcwd(), glob_filter):
-            sys.stderr.write("Processing file %s... " % filename)
-            try:
-                res = orig = open(filename).read()
-            except IOError:
-                sys.stderr.write("ERROR reading file %s!\n" % filename)
-                continue
-            res = searchre.sub(replacere, res)
+    if not (args.files or args.globs):
+        parser.error("Provide files or -g globs!")
 
-            if orig != res:
-                sys.stderr.write("MATCH FOUND")
-                print "Index:", filename
-                print "=" * 80
-                diff = ''.join(list(difflib.unified_diff(orig.splitlines(1),
-                                                         res.splitlines(1),
-                                                         filename + " (original)",
-                                                         filename + " (modified)")))
-                print diff
-                if diff[-1] != "\n":
-                    print "\\ No newline at end of file"
-            sys.stderr.write("\n")
+    for filename in iter_files(args):
+        debug("Processing file %s... " % filename)
+        try:
+            res = orig = open(filename).read()
+        except IOError:
+            debug("ERROR reading file %s!\n" % filename)
+            continue
+        res = args.searchre.sub(args.replacere, res)
+
+        if orig != res:
+            debug("MATCH FOUND\n")
+            print "Index:", filename
+            print "=" * 80
+            diff = ''.join(list(difflib.unified_diff(orig.splitlines(1),
+                                                     res.splitlines(1),
+                                                     filename + " (original)",
+                                                     filename + " (modified)")))
+            print diff
+            if diff[-1] != "\n":
+                print "\\ No newline at end of file"
+        debug("\n")
 
 
 if __name__ == "__main__":
