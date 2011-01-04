@@ -42,7 +42,7 @@ def iter_files(args, basepath=os.getcwd()):
                 for afile in glob_files(adir, aglob):
                     yield afile
 
-def main(args):
+def main():
     parser = argparse.ArgumentParser(description="Search and replace utility")
     parser.add_argument("searchre", type=re_compile)
     parser.add_argument("replacere")
@@ -60,8 +60,12 @@ def main(args):
 
     if not (args.files or args.globs):
         parser.error("Provide files or -g globs!")
-
+    
+    processed = set()
     for filename in iter_files(args):
+        if filename in processed:
+            continue
+        processed.add(filename)
         debug("Processing file %s... " % filename)
         try:
             res = orig = open(filename).read()
@@ -85,4 +89,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
