@@ -26,7 +26,7 @@ def glob_files(basepath, glob_filter):
 def recursive_dirs(basepath):
     for root, dirs, files in os.walk(basepath):
         for dir in dirs:
-            yield dir
+            yield os.path.relpath(os.path.join(root, dir), basepath)
 
 def re_compile(regex):
     return re.compile(regex, re.DOTALL)
