@@ -13,8 +13,16 @@ Output:
 import sys
 import os
 import glob
-import re
 import difflib
+
+try:
+    import regex as re
+except ImportError:
+    # http://bugs.python.org/issue1662581
+    # Avoid things like:
+    #   r = re.compile(r'(\w+)*=.*')
+    #   r.match("abcdefghijklmnopqrstuvwxyz")
+    import re
 
 import argparse
 
