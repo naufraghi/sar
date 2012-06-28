@@ -55,26 +55,28 @@ def main():
     parser.add_argument("searchre", type=re_compile)
     parser.add_argument("replacere")
     parser.add_argument("files", nargs="*", default=[])
-    parser.add_argument("-v", "--verbose", action="store_false", default=True)
+    parser.add_argument("-q", "--quiet", action="store_true", default=False)
     parser.add_argument("-r", "--recursive", action="store_true", default=False) 
     parser.add_argument("-g", "--globs", nargs="+", default=[])
 
     args = parser.parse_args()
 
-    if args.verbose:
+    if not args.quiet:
         debug = sys.stderr.write
     else:
         debug = lambda x: None
 
     if not (args.files or args.globs):
         parser.error("Provide files or -g globs!")
-    
+
+    debug("Searching for %r and replacing to %r\n\n" % (args.searchre.pattern, args.replacere))
+
     processed = set()
     for filename in iter_files(args):
         if filename in processed:
             continue
         processed.add(filename)
-        debug("Processing file %s... " % filename)
+        debug("Processing file %s ... " % filename)
         try:
             res = orig = open(filename).read()
         except IOError:
