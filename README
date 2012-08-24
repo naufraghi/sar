@@ -2,8 +2,8 @@
 Description
 ===========
 
-sar.py is a simple search and replace script that outputs a valid diff file for
-review and later apply with `patch`.
+sar.py is a simple search and replace script that outputs a valid `diff` file
+for review and later apply with `patch`.
 
 =====
 Usage
@@ -30,4 +30,4 @@ Index: sar.py
 Licence
 =======
 
-This script il released under the MIT licence
+This script is released under the MIT licence
