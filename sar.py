@@ -39,16 +39,18 @@ def recursive_dirs(basepath):
 def re_compile(regex):
     return re.compile(regex, re.DOTALL)
 
-def iter_files(args, basepath=os.getcwd()):
-    for afile in args.files:
-        yield afile
-    for aglob in args.globs:
-        for afile in glob_files(basepath, aglob):
+def iter_files(args):
+    for aglob in args.files:
+        for afile in glob_files(args.basepath, aglob):
             yield afile
         if args.recursive:
-            for adir in recursive_dirs(basepath):
+            for adir in recursive_dirs(args.basepath):
                 for afile in glob_files(adir, aglob):
                     yield afile
+
+def check_folder(adir):
+    if os.path.isdir(adir):
+        return adir
 
 def main():
     parser = argparse.ArgumentParser(description="Search and replace utility")
@@ -56,8 +58,8 @@ def main():
     parser.add_argument("replacere")
     parser.add_argument("files", nargs="*", default=[])
     parser.add_argument("-q", "--quiet", action="store_true", default=False)
-    parser.add_argument("-r", "--recursive", action="store_true", default=False) 
-    parser.add_argument("-g", "--globs", nargs="+", default=[])
+    parser.add_argument("-r", "--recursive", action="store_true", default=False)
+    parser.add_argument("-b", "--basepath", type=check_folder, default='.')
 
     args = parser.parse_args()
 
@@ -66,10 +68,12 @@ def main():
     else:
         debug = lambda x: None
 
-    if not (args.files or args.globs):
-        parser.error("Provide files or -g globs!")
+    if not args.files:
+        parser.error("Provide files or globs!")
+    if not args.basepath:
+        parser.error("Provide a valid basepath")
 
-    debug("Searching for %r and replacing to %r\n\n" % (args.searchre.pattern, args.replacere))
+    debug("Searching for '%s' and replacing to '%s'\n\n" % (args.searchre.pattern, args.replacere))
 
     processed = set()
     for filename in iter_files(args):
