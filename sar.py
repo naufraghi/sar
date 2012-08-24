@@ -31,10 +31,20 @@ def glob_files(basepath, glob_filter):
         if os.path.isfile(filename):
             yield filename
 
+def is_scm(adir):
+    for scm in (".git", "CVS", ".svn", ".hg"):
+        _, tail = os.path.split(adir)
+        if scm == tail:
+            return True
+    return False
+
 def recursive_dirs(basepath):
     for root, dirs, files in os.walk(basepath):
-        for dir in dirs:
-            yield os.path.relpath(os.path.join(root, dir), basepath)
+        for adir in dirs:
+            if is_scm(adir):
+                dirs.remove(adir)
+            else:
+                yield os.path.relpath(os.path.join(root, adir), os.getcwd())
 
 def re_compile(regex):
     return re.compile(regex, re.DOTALL)
