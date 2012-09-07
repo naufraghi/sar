@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
+#
+# Copyright (C) 2011-2012 Matteo Bertini <matteo@naufraghi.net>
+# Latest version: https://github.com/naufraghi/sar/
 
 """
 Search and replace utility
