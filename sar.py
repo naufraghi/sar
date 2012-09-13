@@ -17,6 +17,7 @@ import sys
 import os
 import glob
 import difflib
+import logging
 
 try:
     import regex as re
@@ -28,6 +29,9 @@ except ImportError:
     import re
 
 import argparse
+
+logging.basicConfig()
+logger = logging.getLogger("sar")
 
 def glob_files(basepath, glob_filter):
     for filename in glob.glob(basepath + '/' + glob_filter):
@@ -70,39 +74,41 @@ def main():
     parser.add_argument("searchre", type=re_compile)
     parser.add_argument("replacere")
     parser.add_argument("files", nargs="*", default=[])
-    parser.add_argument("-q", "--quiet", action="store_true", default=False)
+    parser.add_argument("-q", "--quiet", action="count", default=0)
     parser.add_argument("-r", "--recursive", action="store_true", default=False)
     parser.add_argument("-b", "--basepath", type=check_folder, default='.')
 
     args = parser.parse_args()
 
-    if not args.quiet:
-        debug = sys.stderr.write
+    if args.quiet < 1:
+        logger.setLevel(logging.DEBUG)
+    elif args.quiet < 2:
+        logger.setLevel(logging.INFO)
     else:
-        debug = lambda x: None
+        logger.setLevel(logging.WARNING)
 
     if not args.files:
         parser.error("Provide files or globs!")
     if not args.basepath:
         parser.error("Provide a valid basepath")
 
-    debug("Searching for '%s' and replacing to '%s'\n\n" % (args.searchre.pattern, args.replacere))
+    logger.info("Searching for '%s' and replacing to '%s'" % (args.searchre.pattern, args.replacere))
 
     processed = set()
     for filename in iter_files(args):
         if filename in processed:
             continue
         processed.add(filename)
-        debug("Processing file %s ... " % filename)
+        logger.debug("Processing file %s ... " % filename)
         try:
             res = orig = open(filename).read()
         except IOError:
-            debug("ERROR reading file %s!\n" % filename)
+            logger.warn("ERROR reading file %s!" % filename)
             continue
         res = args.searchre.sub(args.replacere, res)
 
         if orig != res:
-            debug("MATCH FOUND\n")
+            logger.info("MATCH FOUND in %s" % filename)
             print "Index:", filename
             print "=" * 80
             diff = ''.join(list(difflib.unified_diff(orig.splitlines(1),
@@ -112,7 +118,6 @@ def main():
             print diff
             if diff[-1] != "\n":
                 print "\\ No newline at end of file"
-        debug("\n")
 
 
 if __name__ == "__main__":
