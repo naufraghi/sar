@@ -28,11 +28,20 @@ except ImportError:
     #   r.match("abcdefghijklmnopqrstuvwxyz")
     import re
 
-import argparse
-
 logging.basicConfig()
 logger = logging.getLogger("sar")
 
+try:
+    from argparse import ArgumentParser
+except ImportError, err:
+    logger.warning("argparse module is missing, trying to exec from online repo")
+    import urllib2
+    try:
+        exec urllib2.urlopen("http://argparse.googlecode.com/hg/argparse.py").read()
+    except:
+        logger.error("Unable open remote argparse module")
+        raise err
+    
 def glob_files(basepath, glob_filter):
     for filename in glob.glob(basepath + '/' + glob_filter):
         if os.path.isfile(filename):
@@ -67,7 +76,7 @@ def iter_files(args):
                         yield afile
 
 def main():
-    parser = argparse.ArgumentParser(description="Search and replace utility")
+    parser = ArgumentParser(description="Search and replace utility")
     def check_folder(adir):
         if os.path.isdir(adir):
             return adir
