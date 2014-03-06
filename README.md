@@ -1,15 +1,15 @@
-===========
 Description
 ===========
 
 sar.py is a simple search and replace script that outputs a valid `diff` file
 for review and later apply with `patch`.
 
-=====
 Usage
 =====
 
-$ ./sar.py unified_diff megasuper_diff sar.py
+`$ ./sar.py unified_diff megasuper_diff sar.py`
+
+```
 Searching for 'unified_diff' and replacing to 'megasuper_diff'
 
 Processing file sar.py ... MATCH FOUND
@@ -26,8 +26,8 @@ Index: sar.py
                                                       res.splitlines(1),
                                                       filename + " (original)",
                                                       filename + " (modified)")))
+```
 
-=======
 Licence
 =======
 
