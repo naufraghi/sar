@@ -1,13 +1,22 @@
 Description
 ===========
 
+[![PyPI](https://img.shields.io/pypi/dm/sar-tool.svg)](https://pypi.python.org/pypi/sar-tool)
+[![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
+
 sar.py is a simple search and replace script that outputs a valid `diff` file
 for review and later apply with `patch`.
+
+Installation
+============
+
+`$ pip install sar-tool`
+
 
 Usage
 =====
 
-`$ ./sar.py unified_diff megasuper_diff sar.py`
+`$ sar unified_diff megasuper_diff sar.py`
 
 ```
 Searching for 'unified_diff' and replacing to 'megasuper_diff'
