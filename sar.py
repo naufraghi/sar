@@ -13,11 +13,11 @@ Output:
     patch -p0 < patch.diff
 """
 
-import sys
 import os
 import glob
 import difflib
 import logging
+import itertools
 from argparse import ArgumentParser
 
 try:
@@ -44,26 +44,25 @@ def is_scm(adir):
             return True
     return False
 
-def recursive_dirs(basepath):
-    for root, dirs, files in os.walk(basepath):
-        for adir in dirs:
-            if is_scm(adir):
-                dirs.remove(adir)
-            else:
-                yield os.path.relpath(os.path.join(root, adir), os.getcwd())
+def recursive_dirs(args):
+    yield args.basepath
+    if args.recursive:
+        for root, dirs, files in os.walk(args.basepath):
+            for adir in dirs:
+                if is_scm(adir):
+                    dirs.remove(adir)
+                else:
+                    yield os.path.relpath(os.path.join(root, adir), os.getcwd())
 
 def re_compile(regex):
     return re.compile(regex, re.DOTALL)
 
 def iter_files(args):
-    for aglob in args.files:
-        for basepath in args.basepaths:
-            for afile in glob_files(basepath, aglob):
+    patterns = args.files.split("|") + (args.other_files or [])
+    for apath in recursive_dirs(args):
+        for aglob in patterns:
+            for afile in glob_files(apath, aglob):
                 yield afile
-            if args.recursive:
-                for adir in recursive_dirs(basepath):
-                    for afile in glob_files(adir, aglob):
-                        yield afile
 
 def main():
     parser = ArgumentParser(description="Search and replace utility")
@@ -74,10 +73,18 @@ def main():
             parser.error("'%s' is not a folder, provide a valid path" % adir)
     parser.add_argument("searchre", type=re_compile)
     parser.add_argument("replacere")
-    parser.add_argument("files", nargs="*", default=[])
+    parser.add_argument("files", help="File names or globs, | separated")
+    parser.add_argument("basepath", nargs="?", type=check_folder, default=".",
+                        help="Search base path, default: %(default)s")
+    parser.add_argument("-f", "--files", dest="other_files", action="append", help="File name or glob")
     parser.add_argument("-q", "--quiet", action="count", default=0)
     parser.add_argument("-r", "--recursive", action="store_true", default=False)
-    parser.add_argument("-b", "--basepaths", action="append", type=check_folder, default=[])
+
+    parser.add_argument("-C", "--context", default=3)
+    parser.add_argument("-s", "--skip-hunks", default="\0", # fails allways
+                        help="Skip hunks containing")
+    parser.add_argument("-k", "--keep-hunks", default="", # pass allways
+                        help="Keep only hunks containing")
 
     args = parser.parse_args()
 
@@ -88,12 +95,9 @@ def main():
     else:
         logger.setLevel(logging.WARNING)
 
-    if not args.files:
-        parser.error("Provide files or globs!")
-    if not args.basepaths:
-        args.basepaths = ['.']
-
-    logger.info("Searching for '%s' and replacing to '%s'" % (args.searchre.pattern, args.replacere))
+    logger.info("Searching%s for %r and replacing to %r in %r",
+                " (recursive)" if args.recursive else "",
+                args.searchre.pattern, args.replacere, args.basepath)
 
     processed = set()
     for filename in iter_files(args):
@@ -112,10 +116,16 @@ def main():
             logger.info("MATCH FOUND in %s" % filename)
             print("Index:", filename)
             print("=" * 80)
-            diff = ''.join(list(difflib.unified_diff(orig.splitlines(1),
-                                                     res.splitlines(1),
-                                                     filename + " (original)",
-                                                     filename + " (modified)")))
+            diffs = []
+            for hunk in difflib.unified_diff(orig.splitlines(1),
+                                             res.splitlines(1),
+                                             filename + " (original)",
+                                             filename + " (modified)",
+                                             n=args.context):
+                if (args.skip_hunks not in hunk) or (args.keep_hunks in hunk):
+                    diffs.append(hunk)
+
+            diff = ''.join(diffs)
             print(diff)
             if diff[-1] != "\n":
                 print("\\ No newline at end of file")
