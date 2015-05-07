@@ -1,7 +1,7 @@
 Description
 ===========
 
-[![PyPI](https://img.shields.io/pypi/dm/sar-tool.svg)](https://pypi.python.org/pypi/sar-tool)
+[![PyPI](https://img.shields.io/pypi/v/sar-tool.svg)](https://pypi.python.org/pypi/sar-tool)
 [![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 
 sar.py is a simple search and replace script that outputs a valid `diff` file
