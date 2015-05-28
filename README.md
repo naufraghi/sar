@@ -1,9 +1,12 @@
-Description
-===========
+Search and replace diff tool
+============================
 
 [![PyPI version](https://img.shields.io/pypi/v/sar-tool.svg)](https://pypi.python.org/pypi/sar-tool)
 [![PyPI downloads](https://img.shields.io/pypi/dm/sar-tool.svg)](https://pypi.python.org/pypi/sar-tool#downloads)
-[![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg)](http://naufraghi.mit-license.org)
+[![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/naufraghi/sar)
+
+Usage
+=====
 
 `sar` is a simple search and replace script that outputs a valid `diff` file
 for review and later apply with `patch`.
@@ -41,4 +44,4 @@ Index: sar.py
 Licence
 =======
 
-This script is released under the MIT licence
+This script is released under the [MIT licence](http://naufraghi.mit-license.org)
