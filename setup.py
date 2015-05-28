@@ -9,7 +9,7 @@ with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
 
 setup(
     name='sar-tool',
-    version='1.0.1',
+    version='1.0.2',
     description='Search and replace tool that outputs a diff compatible with patch',
     long_description=long_description,
     url='https://github.com/naufraghi/sar',
@@ -32,6 +32,7 @@ setup(
     keywords='sed grep awk diff patch',
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     install_requires=[],
+    py_modules=["sar"],
     entry_points={
         'console_scripts': [
             'sar=sar:main',
