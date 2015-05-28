@@ -9,7 +9,7 @@ with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
 
 setup(
     name='sar-tool',
-    version='1.0.2',
+    version='1.0.3',
     description='Search and replace tool that outputs a diff compatible with patch',
     long_description=long_description,
     url='https://github.com/naufraghi/sar',

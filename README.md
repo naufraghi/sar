@@ -5,7 +5,7 @@ Description
 [![PyPI downloads](https://img.shields.io/pypi/dm/sar-tool.svg)](https://pypi.python.org/pypi/sar-tool#downloads)
 [![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 
-sar.py is a simple search and replace script that outputs a valid `diff` file
+`sar` is a simple search and replace script that outputs a valid `diff` file
 for review and later apply with `patch`.
 
 Installation
