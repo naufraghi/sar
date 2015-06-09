@@ -16,6 +16,8 @@ Installation
 
 `$ pip install sar-tool`
 
+:exclamation: #2 if you install `pip install sar`, the script will not load correctly, because of conflicting imports.
+
 
 Usage
 =====
