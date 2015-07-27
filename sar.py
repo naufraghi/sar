@@ -110,6 +110,9 @@ def main():
         except IOError:
             logger.warn("ERROR reading file %s!" % filename)
             continue
+        except UnicodeDecodeError as err:
+            logger.warn("ERROR decoding file %s!\n%s" % (filename, err))
+            continue
         res = args.searchre.sub(args.replacere, res)
 
         if orig != res:
